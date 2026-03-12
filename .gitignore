@@ -1,4 +1,9 @@
-ConvertedNNs/*
+ConvertedNNs/
 out_report/
-PTmodels/__pycache/*
-tensorrtConversion/__pycache/*
+PTmodels/__pycache__/
+tensorrtConversion/__pycache__/
+PTmodels/*/embeddings_shape.json
+tensorrtConversion/Calibration/calibration.cache
+tensorrtConversion/Calibration/__pycache__/
+tensorrtConversion/*.log
+data/
