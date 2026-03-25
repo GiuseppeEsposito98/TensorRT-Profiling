@@ -1,8 +1,9 @@
-# Pytorch_to_TensorRT
-This repository, can take any pytorch-based model and convert it into a TensorRT compatible format. 
-- It allows a kernel-level profiling of the operations graph by inspecting each NN layer implementation.
-- It leverages Hardware Program Counters to profile the inference time
-- It leverages on internal hardware sensors to profile the Power consumption.
+# TensorRT Profiling
+This repository provides the scripts to:
+- Convert the Pytorch-based Neural Networks for autonomous drone navigation in TensorRT compatible format
+- Profile at the kernel-level the operations graph by inspecting each NN layer.
+- Profile the inference time through the Hardware Program Counters.
+- Profile the energy consumption through internal Hardware Telemetry Sensors.
 
 ## Requirements
 TensorRT version >= 10.x
