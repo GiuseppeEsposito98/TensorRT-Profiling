@@ -7,7 +7,7 @@ import numpy as np
 import random
 
 # For our custom calibrator
-from map_tool_box.scripts.Pytorch_to_TensorRT.tensorrtConversion.Calibration.calibrator import load_data, load_labels, EntropyCalibrator
+from tensorrtConversion.Calibration.calibrator import load_data, load_labels, EntropyCalibrator
 import sys, os
 # trt.Logger.Severity.VERBOSE
 TRT_LOGGER = trt.Logger()

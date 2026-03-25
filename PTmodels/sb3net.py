@@ -4,7 +4,7 @@ import pickle
 from typing import Any, Dict, List, Tuple, Union
 import torch
 import torch.nn as nn
-from map_tool_box.scripts.tensorrtConversion.common import elementwise_mode3
+from tensorrtConversion.common import elementwise_mode3
 
 
 # elements should be float32 tensors cast to same device as model

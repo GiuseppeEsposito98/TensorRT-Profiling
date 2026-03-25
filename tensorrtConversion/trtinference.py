@@ -5,7 +5,7 @@ import numpy as np
 import tensorrt as trt
 import pycuda.driver as cuda
 import pycuda.autoinit  # inizializza il contesto CUDA
-from map_tool_box.scripts.tensorrtConversion.common import get_binding_info, allocate_bindings, load_numpy_or_random, np_dtype_from_trt, load_engine
+from tensorrtConversion.common import get_binding_info, allocate_bindings, load_numpy_or_random, np_dtype_from_trt, load_engine
 
 
 TRT_LOGGER = trt.Logger(trt.Logger.WARNING)

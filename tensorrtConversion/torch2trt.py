@@ -8,11 +8,11 @@ import onnx
 import pickle
 from pathlib import Path
 import tensorrt as trt
-from map_tool_box.scripts.PTmodels.sb3net import SB3Net
+from PTmodels.sb3net import SB3Net
 import numpy as np
 from collections import OrderedDict
-from map_tool_box.scripts.Pytorch_to_TensorRT.tensorrtConversion.ConverterUtils import build_int8_engine_from_onnx, build_trt_engine
-from map_tool_box.scripts.Pytorch_to_TensorRT.tensorrtConversion.Calibration.calibrator import EntropyCalibrator
+from tensorrtConversion.ConverterUtils import build_int8_engine_from_onnx, build_trt_engine
+from tensorrtConversion.Calibration.calibrator import EntropyCalibrator
 import json
 import sys
 from pathlib import Path
