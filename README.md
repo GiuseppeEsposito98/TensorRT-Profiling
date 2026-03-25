@@ -25,12 +25,12 @@ source ~/benchmark/bin/activate
 
 5. Run the script tensorrtConversion/torch2trt.py with the desired data type and the desired map
 ```bash
-python tensorrtConversion/torch2trt.py --format INT8 --map NH
+python tensorrtConversion/torch2trt.py --format FP16 --map NH
 ```
 
 6. Profile telemetry metrics and inference time
 ```bash
-bash complete_profiling.sh ./ConvertedNNs NH 10 10 INT8
+bash complete_profiling.sh ./ConvertedNNs NH 10 10 FP16
 ```
 
 7. You will find the final report in out_report/NH/report.csv
