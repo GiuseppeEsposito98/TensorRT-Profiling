@@ -70,7 +70,7 @@ done
 ## Usage: Evaluate the HT configurations
 
 Available HT configurations: 
-- base, 
+- Baseline, 
 - FP-TMR (SOTA), 
 - RP-TMR (SOTA), 
 - Ranger (SOTA), 
