@@ -71,8 +71,6 @@ done
 
 Available HT configurations: 
 - Baseline, 
-- FP-TMR (SOTA), 
-- RP-TMR (SOTA), 
 - Ranger (SOTA), 
 - Model1 (This work), 
 - Model2 (This work), 
