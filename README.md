@@ -12,7 +12,7 @@ Python version >= 3.9
 
 ## Install
 1. Download [TensorRT](https://developer.nvidia.com/tensorrt) compatible with your system setup
-2. Install TensorRT following the instructions provided at this Official [Repository] (https://github.com/NVIDIA/TensorRT/tree/a180e08111b61adf0fee4baa86bc33f1633745f2)
+2. Install TensorRT following the instructions provided at this Official [Repository](https://github.com/NVIDIA/TensorRT/tree/a180e08111b61adf0fee4baa86bc33f1633745f2)
 
 3. Setup the python environment in such a way that the system packages are visible.
 ```bash
