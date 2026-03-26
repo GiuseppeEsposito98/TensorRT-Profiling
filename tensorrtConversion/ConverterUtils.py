@@ -50,9 +50,8 @@ def build_int8_engine_from_onnx(onnx_path, calibrator, plan_path=None, fp16_fall
             for i in range(network.num_inputs):
                 inp = network.get_input(i)
                 name = inp.name
-                shape = inp.shape  # es: (-1, 3, 144, 256) con batch dinamico
+                shape = inp.shape 
                 if shape[0] == -1:
-                    # Definisci (min, opt, max) batch sizes a tua scelta
                     min_shape = (1, *shape[1:])
                     opt_shape = (8, *shape[1:])
                     max_shape = (32, *shape[1:])
@@ -81,7 +80,7 @@ def build_trt_engine(onnx_path: str,
         trt.OnnxParser(network, logger) as parser, \
         builder.create_builder_config() as config:
 
-        # FP16 (se supportato dalla piattaforma)
+        # FP16 (if supported)
         if fp16 and builder.platform_has_fast_fp16:
             config.set_flag(trt.BuilderFlag.FP16)
 
@@ -92,7 +91,7 @@ def build_trt_engine(onnx_path: str,
                     print(f"[TRT][Parser] {parser.get_error(i)}")
                 raise RuntimeError("Parsing ONNX failed.")
 
-        # Optimization Profile per input dinamico
+        # Optimization Profile 
         profile = builder.create_optimization_profile()
         input_tensor = network.get_input(0)
         

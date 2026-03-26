@@ -25,7 +25,7 @@ def get_binding_info(engine: trt.ICudaEngine):
         name = engine.get_tensor_name(i)
         is_input = engine.get_tensor_mode(name) == trt.TensorIOMode.INPUT
         dtype = engine.get_tensor_dtype(name)
-        shape = engine.get_tensor_shape(name)  # static shape o -1 per dim dinamiche
+        shape = engine.get_tensor_shape(name) 
         info.append(dict(index=i, name=name, is_input=is_input, dtype=dtype, shape=tuple(shape)))
     return info
 
@@ -126,14 +126,14 @@ def elementwise_mode3(y1: torch.Tensor, y2: torch.Tensor, y3: torch.Tensor, tol:
 
 
 def setup(engine_path):
-	# 1) Carica engine e crea contesto
+	# 1) Load engine and context
 	engine = load_engine(engine_path)
 
 	context = engine.create_execution_context()
 	if not context:
 		raise RuntimeError("Impossibile creare IExecutionContext.")
 
-	# 4) Alloca buffer H2D/D2H per tutti i binding
+	# 4) Allocate buffers
 	stream = cuda.Stream()
 
 	bindings_ptrs, host_inout, device_inout = allocate_bindings(engine, context, stream)
@@ -165,14 +165,14 @@ def inference(sample_size, bindings_ptrs, host_inout, device_inout, context, str
 		if meta["is_input"]:
 			cuda.memcpy_htod_async(device_inout[name], meta["buffer"], stream)
 	for n in range(sample_size):
-		# H2D per tutti gli input
+		# H2D for all inputs
 
 		# Inference
 		ok = context.execute_v2(bindings_ptrs)
 		if not ok:
 			raise RuntimeError("execute_v2 ha restituito False.")
 
-	# D2H per tutti gli output
+	# D2H for all outputs
 	for name, meta in host_inout.items():
 		if not meta["is_input"]:
 			cuda.memcpy_dtoh_async(meta["buffer"], device_inout[name], stream)
@@ -187,7 +187,6 @@ def benchmark(bindings_ptrs, host_inout, device_inout, context, stream, n_runs, 
 			elif name == "vec":
 				meta["buffer"][:] = load_numpy_or_random(vec_npy, meta["shape"], meta["dtype"]).ravel()
 			else:
-				# per eventuali input addizionali
 				meta["buffer"][:] = load_numpy_or_random(None, meta["shape"], meta["dtype"]).ravel()
 
 	jetson_json, times = run_benchmark(n_runs, 
@@ -203,9 +202,6 @@ def benchmark(bindings_ptrs, host_inout, device_inout, context, stream, n_runs, 
 	return jetson_json
 
 def save_stats(jetson_json, file_path):
-
-	# print(jetson_json)
-
 	stats = json.loads(jetson_json)
 	
 	with open(file_path, 'w') as f:

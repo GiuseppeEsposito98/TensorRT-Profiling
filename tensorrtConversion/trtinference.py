@@ -11,9 +11,6 @@ from tensorrtConversion.common import get_binding_info, allocate_bindings, load_
 TRT_LOGGER = trt.Logger(trt.Logger.WARNING)
 
 
-
-
-
 def run_pipeline():
     export_mode = 'NN'
     fp16=True

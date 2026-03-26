@@ -71,6 +71,55 @@ def pick_layer_by_idx(model, lyr_idx):
             return mod, name
     raise IndexError("Layer index fuori range")
 
+def convert(root_save_path, onnx_path, model, input_shapes, plan_path, data_format):
+    root_onnx_path = os.path.join(root_save_path, onnx_path)
+    if 'fp16' in data_format.lower():
+        format_save_path = os.path.join(root_save_path, 'FP16')
+    elif 'int8' in data_format.lower():
+        format_save_path = os.path.join(root_save_path, 'INT8')
+
+    Path(format_save_path).mkdir(parents=True, exist_ok=True)
+
+    root_plan_path = os.path.join(format_save_path, plan_path)
+
+    ## From Pytorch to ONNX
+    if 'fp16' in data_format.lower():
+        export_to_onnx(
+            model=model,
+            onnx_path=root_onnx_path,
+            input_shapes = input_shapes,
+            dynamic=True
+        )
+        print(f"[OK] ONNX saved: {root_onnx_path}")
+        
+        build_trt_engine(
+            onnx_path=root_onnx_path,
+            plan_path=root_plan_path,
+        )
+
+    ## INT8 conversion
+    elif 'int8' in data_format.lower():
+        export_to_onnx(
+            model=model,
+            onnx_path=root_onnx_path,
+            input_shapes = input_shapes,
+            dynamic=True
+        )
+        print(f"[OK] ONNX saved: {onnx_path}")
+        try:
+            calibration_cache = os.path.join(root_save_path, 'calibration.cache')
+            calib = EntropyCalibrator(training_data=None, cache_file=calibration_cache, inputs_shape=input_shapes)
+            build_int8_engine_from_onnx(
+                onnx_path=root_onnx_path,
+                plan_path=root_plan_path,
+                calibrator=calib
+                )
+
+        except RuntimeError as e:
+            msg = f"Returned error: {e} and saved in {os.path.join(root_save_path, 'log.txt')}"
+            with open(os.path.join(root_save_path, 'log.txt'), 'w') as f:
+                f.write(msg)
+
 def main():
 
     # Input arguments
@@ -81,11 +130,6 @@ def main():
     args = ap.parse_args()
 
     # default export parameters
-    no_dynamic = True
-    workspace_gb=None
-    min_shape = None # change these if you want to set dynamic shapes (i.e., if the NN can receive inputs with different resolutions w.r.t. the expected one)
-    opt_shape = None
-    max_shape = None
     export_mode = args.export_mode # if set to 'layers' this script will perform a layer-wise conversion
     mapUT = args.map
         
@@ -108,53 +152,8 @@ def main():
             root_save_path = f'ConvertedNNs/{mapUT}/{export_mode}/{lyr_name}'
             plan_path = f'{lyr_name}.plan'
 
-            root_onnx_path = os.path.join(root_save_path, onnx_path)
-            if 'fp16' in args.format.lower():
-                format_save_path = os.path.join(root_save_path, 'FP16')
-            elif 'int8' in args.format.lower():
-                format_save_path = os.path.join(root_save_path, 'INT8')
+            convert(root_save_path, onnx_path, model, input_shapes, plan_path, args.format)
 
-            Path(format_save_path).mkdir(parents=True, exist_ok=True)
-
-            root_plan_path = os.path.join(format_save_path, plan_path)
-
-            ## From Pytorch to ONNX
-            if 'fp16' in args.format.lower():
-                export_to_onnx(
-                    model=lyr,
-                    onnx_path=root_onnx_path,
-                    input_shapes = input_shapes,
-                    dynamic=no_dynamic
-                )
-                print(f"[OK] ONNX saved: {root_onnx_path}")
-                
-                build_trt_engine(
-                    onnx_path=root_onnx_path,
-                    plan_path=root_plan_path,
-                )
-
-            ## INT8 conversion
-            elif 'int8' in args.format.lower():
-                export_to_onnx(
-                    model=lyr,
-                    onnx_path=root_onnx_path,
-                    input_shapes = input_shapes,
-                    dynamic=no_dynamic
-                )
-                print(f"[OK] ONNX saved: {onnx_path}")
-                try:
-                    calibration_cache = os.path.join(root_save_path, 'calibration.cache')
-                    calib = EntropyCalibrator(training_data=None, cache_file=calibration_cache, inputs_shape=input_shapes)
-                    build_int8_engine_from_onnx(
-                        onnx_path=root_onnx_path,
-                        plan_path=root_plan_path,
-                        calibrator=calib
-                        )
-
-                except RuntimeError as e:
-                    msg = f"Returned error: {e} and saved in {os.path.join(root_save_path, 'log.txt')}"
-                    with open(os.path.join(root_save_path, 'log.txt'), 'w') as f:
-                        f.write(msg)
     else: 
         input_shapes = list()
 
@@ -167,54 +166,8 @@ def main():
                 
         root_save_path = f'ConvertedNNs/{mapUT}/{export_mode}'
         plan_path = 'NN.plan'
-
-        if 'fp16' in args.format.lower():
-            root_save_path = os.path.join(root_save_path, 'FP16')
-        elif 'int8' in args.format.lower():
-            root_save_path = os.path.join(root_save_path, 'INT8')
-
-        Path(root_save_path).mkdir(parents=True, exist_ok=True)
-
-        plan_path = os.path.join(root_save_path, plan_path)
             
-        
-        ## From Pytorch to ONNX
-        if 'fp16' in args.format.lower():
-            export_to_onnx(
-                model=model,
-                onnx_path=onnx_path,
-                input_shapes = input_shapes,
-                dynamic=no_dynamic
-            )
-            print(f"[OK] ONNX saved: {onnx_path}")
-            
-            build_trt_engine(
-                onnx_path=onnx_path,
-                plan_path=plan_path,
-            )
-
-        ## INT8 conversion
-        elif 'int8' in args.format.lower():
-            export_to_onnx(
-                model=model,
-                onnx_path=onnx_path,
-                input_shapes = input_shapes,
-                dynamic=no_dynamic
-            )
-            print(f"[OK] ONNX saved: {onnx_path}")
-            try:
-                calibration_cache = os.path.join(root_save_path, 'calibration.cache')
-                calib = EntropyCalibrator(training_data=None, cache_file=calibration_cache, inputs_shape=input_shapes)
-                build_int8_engine_from_onnx(
-                    onnx_path=onnx_path,
-                    plan_path=plan_path,
-                    calibrator=calib
-                    )
-
-            except RuntimeError as e:
-                msg = f"Returned error: {e} and saved in {os.path.join(root_save_path, 'log.txt')}"
-                with open(os.path.join(root_save_path, 'log.txt'), 'w') as f:
-                    f.write(msg)
+        convert(root_save_path, onnx_path, model, input_shapes, plan_path, args.format)
 
 if __name__ == "__main__":
     main()
